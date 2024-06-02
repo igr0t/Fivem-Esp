@@ -3,7 +3,7 @@ local isFlying = false
 print('By Igr0t')
 
 
--- Função para obter todos os NPCs no jogo
+
 function GetAllNPCs()
     local npcs = {}
 
@@ -16,15 +16,15 @@ function GetAllNPCs()
     return npcs
 end
 
--- Função principal
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
 
-        -- Aqui você pode adicionar sua lógica para ativar ou desativar o aimbot (por exemplo, pressionando uma tecla)
-        local aimbot = true -- Supondo que o aimbot está sempre ativado
+       
+        local aimbot = true 
 
-        -- Verifica se o aimbot está ativado
+        
         if aimbot then
             -- Loop através de todos os NPCs
             for _, npc in ipairs(GetAllNPCs()) do
@@ -32,19 +32,19 @@ Citizen.CreateThread(function()
                 local Exist = DoesEntityExist(npc)
                 local Dead = IsEntityDead(npc)
 
-                -- Verifica se o NPC existe e não está morto
+               
                 if Exist and not Dead then
                     -- Converte as coordenadas do NPC para as coordenadas de tela
                     local OnScreen, ScreenX, ScreenY = World3dToScreen2d(npcCoords.x, npcCoords.y, npcCoords.z, 0)
                     
-                    -- Verifica se o NPC está na tela do jogador e se é visível
+                    
                     if IsEntityVisible(npc) and OnScreen then
-                        -- Verifica se o jogador tem linha de visão clara para o NPC
+                       
                         if HasEntityClearLosToEntity(PlayerPedId(), npc, 10000) then
                             -- Obtém as coordenadas da cabeça do NPC
                             local npcHeadCoords = GetPedBoneCoords(npc, 31086, 0, 0, 0)
                             
-                            -- Faz o jogador mirar na cabeça do NPC
+                          
                             SetPedShootsAtCoord(PlayerPedId(), npcHeadCoords.x, npcHeadCoords.y, npcHeadCoords.z, 1)
                         end
                     end
@@ -135,73 +135,19 @@ function GetAllNPCs()
 end
 
 
--- Aimbot
--- Função para mirar na cabeça do jogador-alvo
-function AimAtPlayerHead(playerPed, targetPed)
-    local headBone = GetPedBoneIndex(targetPed, 31086) -- Código do bone da cabeça
-    local headCoords = GetPedBoneCoords(targetPed, headBone)
-
-    -- Faz o jogador mirar na cabeça do outro jogador
-    SetPedShootsAtCoord(playerPed, headCoords.x, headCoords.y, headCoords.z)
-end
-
--- Função para verificar se o jogador está mirando em outro jogador
-function IsPlayerAimingAtAnotherPlayer()
-    local playerPed = PlayerPedId()
-    local aiming = IsPlayerFreeAiming(PlayerId())
-
-    if aiming then
-        local targetPed = GetPlayerPedIsTargeting(PlayerId())
-        if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and not IsPedAPlayer(targetPed) then
-            return true, targetPed
-        end
-    end
-
-    return false, nil
-end
-
--- Loop principal
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(0)
-
-        local aiming, targetPed = IsPlayerAimingAtAnotherPlayer()
-        if aiming then
-            -- Verifica se a tecla Alt está pressionada
-            if IsControlPressed(0, 19) then -- Tecla Alt
-                AimAtPlayerHead(PlayerPedId(), targetPed)
-            end
-        end
-    end
-end)
--- Ak47
-RegisterCommand("ak47", function(source, args)
-    GiveWeaponToPlayer("weapon_assaultrifle", 500)
-    TriggerEvent("chatMessage", "^*^1Você recebeu uma AK47!")
-end)
-
-function GiveWeaponToPlayer(weaponHash, ammo)
-    local playerPed = PlayerPedId()
-    local hash = GetHashKey(weaponHash)
-    GiveWeaponToPed(playerPed, hash, ammo, false, true)
-end
-
 -- Socos explosivos
 RegisterCommand("explosivepunch", function()
     local playerPed = PlayerPedId()
     local playerCoords = GetEntityCoords(playerPed)
     local explosionRadius = 5.0 -- Ajuste conforme necessário
 
-    -- Criar uma explosão na localização do jogador
     AddExplosion(playerCoords.x, playerCoords.y, playerCoords.z, 4, 100000.0, true, false, 100.0)
-
-    -- Aplicar dano explosivo aos jogadores próximos
+    
     ApplyExplosion(playerCoords, 100000.0, 200.0, 0, true, false, 100.0)
 
-    -- Reproduzir efeito sonoro de explosão
+    
     PlaySoundFromCoord(-1, "EXTRASUNNY", playerCoords.x, playerCoords.y, playerCoords.z, "PUSH", 0, 0, 0)
 
-    -- Mensagem de confirmação
     TriggerEvent("chatMessage", "^*^1Você deu um soco explosivo!")
 end, false)
 
